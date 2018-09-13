@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 public class GuiHandler extends AbstractHandler implements Listener {
 
-    public static GuiHandler INSTANCE;
     private HashMap<ItemStack, Runnable> itemAction;
 
     protected GuiHandler() {}
@@ -24,7 +23,6 @@ public class GuiHandler extends AbstractHandler implements Listener {
     public void onLoad() {
         itemAction = new HashMap<>();
         Bukkit.getServer().getPluginManager().registerEvents(this, RPGFaction.getPlugin());
-        INSTANCE = RPGFaction.getHandler(this.getClass());
     }
 
     @Override
@@ -41,5 +39,9 @@ public class GuiHandler extends AbstractHandler implements Listener {
                 itemAction.get(e.getCurrentItem()),
                 1
         );
+    }
+
+    public static GuiHandler getHandler(){
+        return RPGFaction.getHandler(GuiHandler.class);
     }
 }

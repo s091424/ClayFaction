@@ -5,11 +5,9 @@ import org.bukkit.ChatColor;
 
 public class MessageHandler extends AbstractHandler{
 
-    public static MessageHandler INSTANCE;
-
     @Override
     public void onLoad() {
-        INSTANCE = RPGFaction.getHandler(this.getClass());
+
     }
 
     @Override
@@ -25,12 +23,15 @@ public class MessageHandler extends AbstractHandler{
     public enum FactionMessage{
 
         CREATED_FACTION,
-        KICKED_MEMBER,
+        KICKED_MEMBER, //!operator !player
+        MEMBER_LEAVE, // !member
         INVITED_MEMBER, //
         INVITE_FAIL_NOT_ONLINE, // !player
         INVITE_FAIL_NO_FACTION, //
         ALREADY_INVITED, //
         INVITE_FAIL_HAVE_FACTION,
+        INVITE_FAIL_FACTION_NOT_FOUND,
+        INVITE_RESPONSE_INCORRECT,
         INVITE_CANCELLED,
         INVITE_REJECTED,
         INVITE_ACCEPTED,
@@ -38,8 +39,13 @@ public class MessageHandler extends AbstractHandler{
         EDITED_PERMISSION,
         CHANGED_ROLE,
         PROMOTED_LEADER,
-        FACTION_NOT_FOUND //
+        FACTION_NOT_FOUND, //
+        PLAYER_CHAT
 
+    }
+
+    public static MessageHandler getHandler(){
+        return RPGFaction.getHandler(MessageHandler.class);
     }
 
 }

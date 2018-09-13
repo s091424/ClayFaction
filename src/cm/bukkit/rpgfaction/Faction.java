@@ -1,5 +1,7 @@
 package cm.bukkit.rpgfaction;
 
+import cm.bukkit.rpgfaction.handle.ChatHandler;
+import cm.bukkit.rpgfaction.handle.MessageHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -76,7 +78,17 @@ public class Faction {
             return false;
         }
         players.remove(name);
+        ChatHandler.getHandler().sendConsoleFactionMessage(this,
+                MessageHandler.getHandler().getMessage(MessageHandler.FactionMessage.KICKED_MEMBER)
+                        .replace("!player", name)
+        .replace("!operator", operator));
         return true;
+    }
+    public void removeMember(String name){
+        players.remove(name);
+        ChatHandler.getHandler().sendConsoleFactionMessage(this,
+                MessageHandler.getHandler().getMessage(MessageHandler.FactionMessage.MEMBER_LEAVE)
+        .replace("!member", name));
     }
     public String getName() {
         return this.name;
