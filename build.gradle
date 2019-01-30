@@ -1,0 +1,48 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java'
+
+    // Apply the groovy plugin to also add support for Groovy (needed for Spock)
+    // id 'groovy'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+repositories {
+    // jcenter()
+	mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+    }
+	maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        url "http://nexus.hc.to/content/repositories/pub_releases"
+    }
+	maven { 
+	    url "https://jitpack.io" 
+	}
+    maven {
+        url "http://repo.extendedclip.com/content/repositories/placeholderapi/"
+    }
+	
+}
+
+dependencies {
+
+    // implementation 'com.google.guava:guava:26.0-jre'
+    // testImplementation 'org.codehaus.groovy:groovy-all:2.5.4'
+    // testImplementation 'org.spockframework:spock-core:1.2-groovy-2.5'
+    // testImplementation 'junit:junit:4.12'
+	
+	implementation "io.reactivex.rxjava2:rxjava:2.2.6"
+
+    compileOnly "org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT"
+	compile 'com.github.Bkm016:TabooLib:4.69'
+    compile 'me.clip:placeholderapi:2.8.4'
+	
+}
