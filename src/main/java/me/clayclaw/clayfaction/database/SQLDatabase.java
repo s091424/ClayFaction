@@ -11,7 +11,7 @@ import me.skymc.taboolib.mysql.hikari.HikariHandler;
 import javax.sql.DataSource;
 import java.util.List;
 
-public class SQLDatabase extends AbstractDatabase{
+public class SQLDatabase implements IDatabase {
 
     private SQLHost host;
     private SQLTable table;

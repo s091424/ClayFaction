@@ -2,9 +2,9 @@ package me.clayclaw.clayfaction.faction;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import me.clayclaw.clayfaction.AbstractService;
+import me.clayclaw.clayfaction.IService;
 
-public class FactionService extends AbstractService {
+public class FactionService implements IService {
 
     private Observable<Faction> factionObservable;
 

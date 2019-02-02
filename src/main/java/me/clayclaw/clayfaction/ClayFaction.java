@@ -24,7 +24,7 @@ public class ClayFaction extends JavaPlugin {
     @TInject("config.yml")
     public static TConfiguration config;
 
-    private static HashMap<Class<? extends AbstractService>, AbstractService> serviceMap;
+    private static HashMap<Class<?>, IService> serviceMap;
 
     @Override
     public void onEnable(){
@@ -57,10 +57,11 @@ public class ClayFaction extends JavaPlugin {
                 .build();
     }
     private void initService(){
-        Arrays.stream(Services.values()).forEach(
-                services -> {
+        Arrays.stream(Services.values())
+                .filter(services -> IService.class.isAssignableFrom(services.targetClass))
+                .forEach(services -> {
                     try {
-                        serviceMap.put(services.targetClass, services.targetClass.newInstance());
+                        serviceMap.put(services.targetClass, (IService) services.targetClass.newInstance());
                     } catch (InstantiationException | IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -76,7 +77,7 @@ public class ClayFaction extends JavaPlugin {
         });
     }
 
-    public static AbstractService getService(Class<? extends AbstractService> targetClass){
+    public static IService getService(Class<?> targetClass){
         return serviceMap.get(targetClass);
     }
 
@@ -84,8 +85,8 @@ public class ClayFaction extends JavaPlugin {
         FACTION(FactionService.class),
         DATABASE(DatabaseService.class);
 
-        Class<? extends AbstractService> targetClass;
-        Services(Class<? extends AbstractService> targetClass){
+        Class<?> targetClass;
+        Services(Class<?> targetClass){
             this.targetClass = targetClass;
         }
     }
