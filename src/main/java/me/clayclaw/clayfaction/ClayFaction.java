@@ -2,7 +2,6 @@ package me.clayclaw.clayfaction;
 
 import com.ilummc.tlib.annotations.Dependency;
 import com.ilummc.tlib.logger.TLogger;
-import io.reactivex.functions.Action;
 import me.clayclaw.clayfaction.database.DatabaseService;
 import me.clayclaw.clayfaction.faction.FactionService;
 import me.skymc.taboolib.commands.builder.SimpleCommandBuilder;
@@ -24,7 +23,7 @@ public class ClayFaction extends JavaPlugin {
     @TInject("config.yml")
     public static TConfiguration config;
 
-    private static HashMap<Class<?>, IService> serviceMap;
+    private static HashMap<Class<? extends IService>, IService> serviceMap;
 
     @Override
     public void onEnable(){
@@ -44,9 +43,15 @@ public class ClayFaction extends JavaPlugin {
 
     @Override
     public void onDisable(){
-
+        destroyService();
     }
 
+    private void destroyService(){
+        serviceMap.values().forEach(services ->
+                services.unload().subscribe(() ->
+                        logger.info(services.getClass().toGenericString() + " is unloaded.")));
+        serviceMap.clear();
+    }
     private void initCommand(){
         SimpleCommandBuilder.create("cf", this)
                 .description("Command for ClayFaction")
@@ -58,35 +63,30 @@ public class ClayFaction extends JavaPlugin {
     }
     private void initService(){
         Arrays.stream(Services.values())
-                .filter(services -> IService.class.isAssignableFrom(services.targetClass))
                 .forEach(services -> {
                     try {
-                        serviceMap.put(services.targetClass, (IService) services.targetClass.newInstance());
+                        serviceMap.put(services.targetClass, services.targetClass.newInstance());
                     } catch (InstantiationException | IllegalAccessException e) {
                         e.printStackTrace();
                     }
                 }
         );
-        serviceMap.values().forEach(services -> {
-            services.load().subscribe(new Action() {
-                @Override
-                public void run() throws Exception {
-                    logger.info(services.getClass().toGenericString() + " is loaded.");
-                }
-            });
-        });
+        serviceMap.values().forEach(services ->
+                services.load().subscribe(() ->
+                        logger.info(services.getClass().toGenericString() + " is loaded.")));
     }
 
-    public static IService getService(Class<?> targetClass){
+    public static IService getService(Class<? extends IService> targetClass){
         return serviceMap.get(targetClass);
     }
 
     enum Services {
-        FACTION(FactionService.class),
-        DATABASE(DatabaseService.class);
 
-        Class<?> targetClass;
-        Services(Class<?> targetClass){
+        DATABASE(DatabaseService.class),
+        FACTION(FactionService.class);
+
+        Class<? extends IService> targetClass;
+        Services(Class<? extends IService> targetClass){
             this.targetClass = targetClass;
         }
     }
