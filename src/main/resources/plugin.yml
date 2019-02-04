@@ -1,3 +1,4 @@
 name: ClayFaction
 main: me.clayclaw.clayfaction.ClayFaction
 version: 0.0.1
+depend: [TabooLib]

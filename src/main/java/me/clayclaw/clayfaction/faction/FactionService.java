@@ -61,7 +61,7 @@ public class FactionService implements IService {
     }
 
     public void removeFaction(UUID uuid){
-        factions.remove(getFaction(uuid));
+        factions.remove(getFaction(uuid).get());
     }
 
     /***

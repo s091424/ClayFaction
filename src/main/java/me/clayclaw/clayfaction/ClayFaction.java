@@ -2,7 +2,6 @@ package me.clayclaw.clayfaction;
 
 import com.ilummc.tlib.annotations.Dependency;
 import com.ilummc.tlib.logger.TLogger;
-import me.clayclaw.bukkit.confirmpack.ConfirmPack;
 import me.clayclaw.bukkit.confirmpack.ConfirmPackService;
 import me.clayclaw.clayfaction.bstats.Metrics;
 import me.clayclaw.clayfaction.database.DatabaseService;
@@ -10,6 +9,7 @@ import me.clayclaw.clayfaction.faction.FactionService;
 import me.skymc.taboolib.commands.builder.SimpleCommandBuilder;
 import me.skymc.taboolib.common.configuration.TConfiguration;
 import me.skymc.taboolib.common.inject.TInject;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -75,35 +75,41 @@ public class ClayFaction extends JavaPlugin {
         SimpleCommandBuilder.create("cf", this)
                 .description("Command for ClayFaction")
                 .execute((sender, args) -> {
+                    if(args.length <= 0){
+                        Bukkit.dispatchCommand(sender, "cf help");
+                        return false;
+                    }
+                    if(!(sender instanceof Player)){
+                        sender.sendMessage(GlobalMessage.getMessage("MUSTBEPLAYER"));
+                        return false;
+                    }
+                    if(sender.hasPermission("cf."+args[0])){
+                        sender.sendMessage(langConfig.getStringColored("NoPermission"));
+                        return false;
+                    }
+                    Player player = (Player) sender;
                     switch (args[0]){
                         case "reload":
-                            if(sender.hasPermission("clayfaction.reload")) {
-                                config.reload();
-                                langConfig.reload();
-                                sender.sendMessage(GlobalMessage.getMessage("RELOADED"));
-                            }
+                            config.reload();
+                            langConfig.reload();
+                            player.sendMessage(GlobalMessage.getMessage("RELOADED"));
                             break;
                         case "admin":
 
                             break;
                         case "invite":
-                            if(sender instanceof Player && sender.hasPermission("clayfaction.invite")){
 
-                            }
                             break;
                         case "create":
-                            if(sender instanceof Player && sender.hasPermission("clayfaction.create")){
-                                Player player = (Player) sender;
-                                if(Objects.isNull(((FactionService)getService(FactionService.class)).getFaction(player))){
-                                    if(args[1] != null){
-                                        ((FactionService)getService(FactionService.class)).createFaction(player, args[1]);
-                                        sender.sendMessage(langConfig.getStringColored("FactionSuccessfullyCreated"));
-                                    }else{
-                                        sender.sendMessage(langConfig.getStringColored("FactionNameIsRequired"));
-                                    }
+                            if(Objects.isNull(((FactionService)getService(FactionService.class)).getFaction(player))){
+                                if(args[1] != null){
+                                    ((FactionService)getService(FactionService.class)).createFaction(player, args[1]);
+                                    sender.sendMessage(langConfig.getStringColored("FactionSuccessfullyCreated"));
                                 }else{
-                                    sender.sendMessage(langConfig.getStringColored("AlreadyJoinFaction"));
+                                    sender.sendMessage(langConfig.getStringColored("FactionNameIsRequired"));
                                 }
+                            }else{
+                                sender.sendMessage(langConfig.getStringColored("AlreadyJoinFaction"));
                             }
                             break;
                         default:
