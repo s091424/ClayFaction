@@ -18,7 +18,7 @@ public class SQLDatabase implements IDatabase {
     private DataSource dataSource;
 
     public SQLDatabase(){
-        host = new SQLHost(ClayFaction.config.getConfigurationSection("Database"), ClayFaction.plugin);
+        host = new SQLHost(ClayFaction.config.getConfigurationSection("SQLDatabase"), ClayFaction.plugin);
         table = new SQLTable("FactionData", SQLColumn.PRIMARY_KEY_ID,
                 new SQLColumn(SQLColumnType.TEXT, "uuid"),
                 new SQLColumn(SQLColumnType.TEXT, "name"),
@@ -47,8 +47,14 @@ public class SQLDatabase implements IDatabase {
                     s.setString(1, data.uuid);
                     s.setString(2, data.name);
                     s.setInt(3, data.capacity);
-                    s.setNString(4, data.convertUsersToString());
+                    s.setNString(4, convertUsersToString(data.usersAndPermissions));
                 })
                 .run();
+    }
+
+    private String convertUsersToString(List<String> usersAndPermissions){
+        StringBuilder builder = new StringBuilder();
+        usersAndPermissions.forEach(s -> builder.append(s));
+        return builder.toString();
     }
 }

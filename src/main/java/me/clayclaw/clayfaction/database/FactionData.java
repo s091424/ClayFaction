@@ -9,10 +9,6 @@ public class FactionData {
     public List<String> usersAndPermissions;
     public int capacity;
 
-    public String convertUsersToString(){
-        StringBuilder builder = new StringBuilder();
-        usersAndPermissions.forEach(s -> builder.append(s));
-        return builder.toString();
-    }
+    public String settingDefaultRank;
 
 }

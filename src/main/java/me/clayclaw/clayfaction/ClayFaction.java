@@ -2,19 +2,25 @@ package me.clayclaw.clayfaction;
 
 import com.ilummc.tlib.annotations.Dependency;
 import com.ilummc.tlib.logger.TLogger;
+import me.clayclaw.bukkit.confirmpack.ConfirmPack;
+import me.clayclaw.bukkit.confirmpack.ConfirmPackService;
+import me.clayclaw.clayfaction.bstats.Metrics;
 import me.clayclaw.clayfaction.database.DatabaseService;
 import me.clayclaw.clayfaction.faction.FactionService;
 import me.skymc.taboolib.commands.builder.SimpleCommandBuilder;
 import me.skymc.taboolib.common.configuration.TConfiguration;
 import me.skymc.taboolib.common.inject.TInject;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Dependency(type = Dependency.Type.LIBRARY, maven = "io.reactivex.rxjava2:rxjava:2.2.6")
 public class ClayFaction extends JavaPlugin {
+
+    protected static final String LANGUAGE = "ZHTW";
 
     @TInject
     public static Plugin plugin;
@@ -22,14 +28,20 @@ public class ClayFaction extends JavaPlugin {
     public static TLogger logger;
     @TInject("config.yml")
     public static TConfiguration config;
+    @TInject("lang.yml")
+    public static TConfiguration langConfig;
+
+    private Metrics metrics;
 
     private static HashMap<Class<? extends IService>, IService> serviceMap;
 
     @Override
     public void onEnable(){
         serviceMap = new HashMap<>();
+        initConfig();
         initService();
         initCommand();
+        metrics = new Metrics(this);
         logger.info("\n" +
                 "   _____ _             ______         _   _             \n" +
                 "  / ____| |           |  ____|       | | (_)            \n" +
@@ -47,20 +59,60 @@ public class ClayFaction extends JavaPlugin {
     }
 
     private void destroyService(){
-        serviceMap.values().forEach(services ->
-                services.unload().subscribe(() ->
+        serviceMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        serviceMap.values().forEach(services -> services.unload().subscribe(() ->
                         logger.info(services.getClass().toGenericString() + " is unloaded.")));
         serviceMap.clear();
     }
+
+    private void initConfig(){
+
+    }
+
     private void initCommand(){
         SimpleCommandBuilder.create("cf", this)
                 .description("Command for ClayFaction")
                 .execute((sender, args) -> {
+                    switch (args[0]){
+                        case "reload":
+                            if(sender.hasPermission("clayfaction.reload")) {
+                                config.reload();
+                                langConfig.reload();
+                                sender.sendMessage(GlobalMessage.getMessage("RELOADED"));
+                            }
+                            break;
+                        case "admin":
 
+                            break;
+                        case "invite":
+                            if(sender instanceof Player && sender.hasPermission("clayfaction.invite")){
+
+                            }
+                            break;
+                        case "create":
+                            if(sender instanceof Player && sender.hasPermission("clayfaction.create")){
+                                Player player = (Player) sender;
+                                if(Objects.isNull(((FactionService)getService(FactionService.class)).getFaction(player))){
+                                    if(args[1] != null){
+                                        ((FactionService)getService(FactionService.class)).createFaction(player, args[1]);
+                                        sender.sendMessage(langConfig.getStringColored("FactionSuccessfullyCreated"));
+                                    }else{
+                                        sender.sendMessage(langConfig.getStringColored("FactionNameIsRequired"));
+                                    }
+                                }else{
+                                    sender.sendMessage(langConfig.getStringColored("AlreadyJoinFaction"));
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                     return true;
-                })
-                .build();
+                }).build();
     }
+
     private void initService(){
         Arrays.stream(Services.values())
                 .forEach(services -> {
@@ -83,7 +135,8 @@ public class ClayFaction extends JavaPlugin {
     enum Services {
 
         DATABASE(DatabaseService.class),
-        FACTION(FactionService.class);
+        FACTION(FactionService.class),
+        CONFIRMPACK(ConfirmPackService.class);
 
         Class<? extends IService> targetClass;
         Services(Class<? extends IService> targetClass){

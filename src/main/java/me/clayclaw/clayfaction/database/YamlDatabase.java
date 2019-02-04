@@ -5,7 +5,6 @@ import me.skymc.taboolib.common.inject.TInject;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class YamlDatabase implements IDatabase {
@@ -17,13 +16,16 @@ public class YamlDatabase implements IDatabase {
     public List<FactionData> extractData() {
         ConfigurationSection path = database.getConfigurationSection("Factions");
         ArrayList<FactionData> fdlist = new ArrayList<>();
-        Arrays.asList(path.getKeys(true)).forEach(s  -> {
+        path.getKeys(true).forEach(s -> {
             FactionData data = new FactionData();
-            data.name = database.getStringColored("Factions."+s+".name");
-            data.capacity = database.getInt("Factions."+s+".capacity");
-            data.usersAndPermissions = database.getStringList("Factions."+s+".usersAndPermissions");
+            data.uuid = s;
+            data.name = database.getStringColored("Factions." + s + ".name");
+            data.capacity = database.getInt("Factions." + s + ".capacity");
+            data.usersAndPermissions = database.getStringList("Factions." + s + ".usersAndPermissions");
+            data.settingDefaultRank = database.getString("Factions." + s + ".setting.defaultRank");
             fdlist.add(data);
         });
+        database.set("Factions", "");
         return fdlist;
     }
 
@@ -32,6 +34,7 @@ public class YamlDatabase implements IDatabase {
         database.set("Factions."+data.uuid+".name", data.name);
         database.set("Factions."+data.uuid+".capacity", data.capacity);
         database.set("Factions."+data.uuid+".usersAndPermissions", data.usersAndPermissions);
+        database.set("Factions."+data.uuid+".setting.defaultRank", data.settingDefaultRank);
     }
 
 }

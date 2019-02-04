@@ -19,11 +19,13 @@ public class FactionService implements IService {
     public Completable load() {
         dbservice = (DatabaseService) ClayFaction.getService(DatabaseService.class);
         factions = new HashSet<>();
+        dbservice.getDataList().forEach(data -> factions.add(new Faction(data)));
         return Completable.fromRunnable(() -> dbservice.getDataList().forEach(Faction::new));
     }
 
     @Override
     public Completable unload() {
+
         return Completable.complete();
     }
 
@@ -52,6 +54,21 @@ public class FactionService implements IService {
             return true;
         }
         return false;
+    }
+
+    public void createFaction(Player player, String name){
+        factions.add(new Faction(player,  name));
+    }
+
+    public void removeFaction(UUID uuid){
+        factions.remove(getFaction(uuid));
+    }
+
+    /***
+     * Send invitation to a player who haven't join a faction
+     */
+    public void sendInvitation(UUID uuid, Player player){
+
     }
 
 }

@@ -1,0 +1,9 @@
+DatabaseType: YAML
+Default:
+  capacity: 20
+SQLDatabase:
+  host: localhost
+  user: root
+  port: 3306
+  password: ''
+  database: test

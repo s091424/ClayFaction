@@ -1,6 +1,8 @@
 package me.clayclaw.clayfaction.faction;
 
+import me.clayclaw.clayfaction.ClayFaction;
 import me.clayclaw.clayfaction.database.FactionData;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -13,8 +15,13 @@ public class Faction {
     private int capacity;
     private FactionSetting setting;
 
-    public Faction(){
+    protected Faction(Player owner, String name){
         rankMap = new HashMap<>();
+        this.uuid = UUID.randomUUID();
+        this.name = name;
+        this.rankMap.put(owner.getUniqueId(), FactionRank.LEADER);
+        this.capacity = ClayFaction.config.getInt("Default.capacity");
+        setting = new FactionSetting();
     }
 
     public Faction(FactionData data) {
