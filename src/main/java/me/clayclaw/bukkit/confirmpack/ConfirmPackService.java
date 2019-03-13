@@ -30,7 +30,9 @@ public class ConfirmPackService implements IService {
     public Optional<ConfirmPack> getConfirmPack(UUID uuid){
         return confirmpackSet.stream().filter(confirmPack -> confirmPack.getUUID().equals(uuid)).findFirst();
     }
+
     protected static void addConfirmPack(ConfirmPack confirmPack){
         confirmpackSet.add(confirmPack);
     }
+
 }

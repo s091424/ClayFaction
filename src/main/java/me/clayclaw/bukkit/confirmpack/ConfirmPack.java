@@ -14,6 +14,7 @@ public class ConfirmPack {
     private Player target;
     private Completable onAccept;
     private Completable onDecline;
+    private Completable onExpire;
 
     private int confirmpackCountdown;
     private int countdownTaskId;
@@ -25,7 +26,7 @@ public class ConfirmPack {
         countdownTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(ClayFaction.plugin, () -> {
             confirmpackCountdown++;
             if(confirmpackCountdown >= (responseTime * 20)){
-                confirm(Reply.DECLINED);
+                expire();
             }
         }, 1, 1).getTaskId();
     }
@@ -38,21 +39,13 @@ public class ConfirmPack {
         this.onDecline = completable;
         return this;
     }
-
-    protected void onCancel(){
-        Bukkit.getScheduler().cancelTask(countdownTaskId);
+    public ConfirmPack onExpire(Completable completable){
+        this.onExpire = completable;
+        return this;
     }
-
-    public void confirm(Reply reply){
-        switch (reply){
-            case ACCEPTED:
-                onAccept.subscribe();
-                break;
-            case DECLINED:
-                onDecline.subscribe();
-                break;
-        }
-        ((ConfirmPackService) ClayFaction.getService(ConfirmPackService.class)).remove(uuid);
+    public ConfirmPack register(){
+        ConfirmPackService.addConfirmPack(this);
+        return this;
     }
 
     public UUID getUUID() {
@@ -61,4 +54,27 @@ public class ConfirmPack {
     public Player getPlayer() {
         return target;
     }
+
+    protected void onCancel(){
+        Bukkit.getScheduler().cancelTask(countdownTaskId);
+    }
+
+    public void confirm(Reply reply){
+        switch (reply){
+            case ACCEPT:
+                onAccept.subscribe();
+                break;
+            case DECLINE:
+                onDecline.subscribe();
+                break;
+        }
+        ((ConfirmPackService) ClayFaction.getService(ConfirmPackService.class)).remove(uuid);
+    }
+
+    private void expire(){
+        onExpire.subscribe();
+        ((ConfirmPackService) ClayFaction.getService(ConfirmPackService.class)).remove(uuid);
+    }
+
+
 }

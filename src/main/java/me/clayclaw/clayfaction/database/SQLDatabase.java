@@ -18,6 +18,7 @@ public class SQLDatabase implements IDatabase {
     private DataSource dataSource;
 
     public SQLDatabase(){
+
         host = new SQLHost(ClayFaction.config.getConfigurationSection("SQLDatabase"), ClayFaction.plugin);
         table = new SQLTable("FactionData", SQLColumn.PRIMARY_KEY_ID,
                 new SQLColumn(SQLColumnType.TEXT, "uuid"),
@@ -32,17 +33,20 @@ public class SQLDatabase implements IDatabase {
         table.executeUpdate(table.createQuery())
                 .dataSource(dataSource)
                 .run();
+
     }
 
     @Override
     public List<FactionData> extractData() {
-        table.executeQuery("");
+        table.executeQuery("select * from "+table.getTableName())
+                .dataSource(dataSource);
         return null;
     }
 
     @Override
     public void insertData(FactionData data) {
         table.executeInsert("?, ?, ?, ?")
+                .dataSource(dataSource)
                 .statement(s -> {
                     s.setString(1, data.uuid);
                     s.setString(2, data.name);

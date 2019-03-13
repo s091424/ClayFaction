@@ -1,6 +1,8 @@
 package me.clayclaw.clayfaction.faction;
 
 import io.reactivex.Completable;
+import me.clayclaw.bukkit.confirmpack.ConfirmPack;
+import me.clayclaw.bukkit.confirmpack.ConfirmPackService;
 import me.clayclaw.clayfaction.ClayFaction;
 import me.clayclaw.clayfaction.IService;
 import me.clayclaw.clayfaction.database.DatabaseService;
@@ -14,10 +16,12 @@ public class FactionService implements IService {
 
     private HashSet<Faction> factions;
     private DatabaseService dbservice;
+    private ConfirmPackService confirmPackService;
 
     @Override
     public Completable load() {
         dbservice = (DatabaseService) ClayFaction.getService(DatabaseService.class);
+        confirmPackService = (ConfirmPackService) ClayFaction.getService(ConfirmPackService.class);
         factions = new HashSet<>();
         dbservice.getDataList().forEach(data -> factions.add(new Faction(data)));
         return Completable.fromRunnable(() -> dbservice.getDataList().forEach(Faction::new));
@@ -25,7 +29,7 @@ public class FactionService implements IService {
 
     @Override
     public Completable unload() {
-
+        dbservice.getDataList().clear();
         return Completable.complete();
     }
 
@@ -69,6 +73,29 @@ public class FactionService implements IService {
      */
     public void sendInvitation(UUID uuid, Player player){
 
+        Optional<Faction> playerFactionOptional = getFaction(player);
+        if(playerFactionOptional.isPresent())
+            throw new IllegalArgumentException("Player has already joined a faction.");
+
+        Optional<Faction> factionOptional = getFaction(uuid);
+        if(!factionOptional.isPresent())
+            throw new IllegalArgumentException("UUID not found.");
+
+        Faction sender = factionOptional.get();
+
+        ConfirmPack pack = new ConfirmPack(player, ClayFaction.config.getInt("Invite.responseTime"));
+        String packUUID = pack.getUUID().toString();
+
+        pack.onAccept(Completable.fromAction(() -> {
+
+        })).onDecline(Completable.fromAction(() -> {
+
+        })).onExpire(Completable.fromAction(() -> {
+
+        })).register();
+
     }
+
+
 
 }

@@ -13,7 +13,9 @@ public class DatabaseService implements IService {
 
     @Override
     public Completable load() {
-        DatabaseType selected = DatabaseType.valueOf(ClayFaction.config.getString("DatabaseType").toUpperCase());
+        String type = ClayFaction.config.getString("DatabaseType") == null
+                        ? "YAML" : ClayFaction.config.getString("DatabaseType");
+        DatabaseType selected = DatabaseType.valueOf(type.toUpperCase());
         return Completable.fromRunnable(() -> {
             try {
                 database = selected.targetClass.newInstance();

@@ -2,6 +2,7 @@ package me.clayclaw.clayfaction;
 
 import com.ilummc.tlib.annotations.Dependency;
 import com.ilummc.tlib.logger.TLogger;
+import me.clayclaw.bukkit.bridge.placeholder.PlaceholderService;
 import me.clayclaw.bukkit.confirmpack.ConfirmPackService;
 import me.clayclaw.clayfaction.bstats.Metrics;
 import me.clayclaw.clayfaction.database.DatabaseService;
@@ -141,8 +142,9 @@ public class ClayFaction extends JavaPlugin {
     enum Services {
 
         DATABASE(DatabaseService.class),
+        CONFIRM_PACK(ConfirmPackService.class),
         FACTION(FactionService.class),
-        CONFIRMPACK(ConfirmPackService.class);
+        SUPPORT_PLACEHOLDER(PlaceholderService.class);
 
         Class<? extends IService> targetClass;
         Services(Class<? extends IService> targetClass){
